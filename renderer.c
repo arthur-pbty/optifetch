@@ -18,9 +18,24 @@ static int current_pass = 1;
 
 static int logo_line_idx = 0;
 static int prev_line_had_logo = 0;
-
-// NOUVEAU : Variable pour ignorer les codes ANSI lors du calcul de la largeur
 static int in_ansi_escape = 0;
+
+// NOUVEAU : Génère le code ANSI pour un pourcentage dynamique
+static void get_dynamic_color(double pct, char *out, size_t size)
+{
+    if (pct >= 80.0)
+    {
+        snprintf(out, size, "\033[38;2;255;50;50m"); // Rouge
+    }
+    else if (pct >= 50.0)
+    {
+        snprintf(out, size, "\033[38;2;255;165;0m"); // Orange
+    }
+    else
+    {
+        snprintf(out, size, "\033[38;2;0;200;0m"); // Vert
+    }
+}
 
 static int get_align_width(const char *id)
 {
@@ -60,7 +75,6 @@ static void my_putchar(char c)
         putchar(c);
     }
 
-    // NOUVEAU : Logique pour ignorer les séquences d'échappement ANSI (\033[...m)
     if (c == '\033')
     {
         in_ansi_escape = 1;
@@ -68,15 +82,13 @@ static void my_putchar(char c)
     }
     if (in_ansi_escape)
     {
-        // Les séquences ANSI se terminent par une lettre (souvent 'm')
         if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
         {
             in_ansi_escape = 0;
         }
-        return; // On ne compte pas ces caractères dans current_col
+        return;
     }
 
-    // Compte les caractères UTF-8 visuels
     if ((c & 0xC0) != 0x80)
     {
         current_col++;
@@ -201,41 +213,67 @@ static void print_variable(const char *name, SysInfo *info)
         snprintf(buf, sizeof(buf), "%s", info->locale);
     else if (strcmp(name, "disk_fs") == 0)
         snprintf(buf, sizeof(buf), "%s", info->disk_fs);
+
+    // NOUVEAU : Gestion des variables avec unités et couleurs dynamiques
     else if (strncmp(name, "ram", 3) == 0)
     {
         char unit[128] = "mb";
         if (strlen(name) > 4 && name[3] == ':')
             snprintf(unit, sizeof(unit), "%s", name + 4);
-        if (strcmp(unit, "gb") == 0)
-            snprintf(buf, sizeof(buf), "%.1fGB / %.1fGB", (double)info->ram_used_mb / 1024.0, (double)info->ram_total_mb / 1024.0);
-        else if (strcmp(unit, "%") == 0)
-            snprintf(buf, sizeof(buf), "%.1f%%", info->ram_total_mb ? (double)info->ram_used_mb / (double)info->ram_total_mb * 100.0 : 0);
+        if (strcmp(unit, "%") == 0)
+        {
+            double pct = info->ram_total_mb ? (double)info->ram_used_mb / (double)info->ram_total_mb * 100.0 : 0;
+            char col[32];
+            get_dynamic_color(pct, col, sizeof(col));
+            snprintf(buf, sizeof(buf), "%s%.1f%%\033[0m", col, pct);
+        }
         else
-            snprintf(buf, sizeof(buf), "%luMB / %luMB", info->ram_used_mb, info->ram_total_mb);
+        {
+            if (strcmp(unit, "gb") == 0)
+                snprintf(buf, sizeof(buf), "%.1fGB / %.1fGB", (double)info->ram_used_mb / 1024.0, (double)info->ram_total_mb / 1024.0);
+            else
+                snprintf(buf, sizeof(buf), "%luMB / %luMB", info->ram_used_mb, info->ram_total_mb);
+        }
     }
     else if (strncmp(name, "swap", 4) == 0)
     {
         char unit[128] = "mb";
         if (strlen(name) > 5 && name[4] == ':')
             snprintf(unit, sizeof(unit), "%s", name + 5);
-        if (strcmp(unit, "gb") == 0)
-            snprintf(buf, sizeof(buf), "%.1fGB / %.1fGB", (double)info->swap_used_mb / 1024.0, (double)info->swap_total_mb / 1024.0);
-        else if (strcmp(unit, "%") == 0)
-            snprintf(buf, sizeof(buf), "%.1f%%", info->swap_total_mb ? (double)info->swap_used_mb / (double)info->swap_total_mb * 100.0 : 0);
+        if (strcmp(unit, "%") == 0)
+        {
+            double pct = info->swap_total_mb ? (double)info->swap_used_mb / (double)info->swap_total_mb * 100.0 : 0;
+            char col[32];
+            get_dynamic_color(pct, col, sizeof(col));
+            snprintf(buf, sizeof(buf), "%s%.1f%%\033[0m", col, pct);
+        }
         else
-            snprintf(buf, sizeof(buf), "%luMB / %luMB", info->swap_used_mb, info->swap_total_mb);
+        {
+            if (strcmp(unit, "gb") == 0)
+                snprintf(buf, sizeof(buf), "%.1fGB / %.1fGB", (double)info->swap_used_mb / 1024.0, (double)info->swap_total_mb / 1024.0);
+            else
+                snprintf(buf, sizeof(buf), "%luMB / %luMB", info->swap_used_mb, info->swap_total_mb);
+        }
     }
     else if (strncmp(name, "disk", 4) == 0)
     {
         char unit[128] = "mb";
         if (strlen(name) > 5 && name[4] == ':')
             snprintf(unit, sizeof(unit), "%s", name + 5);
-        if (strcmp(unit, "gb") == 0)
-            snprintf(buf, sizeof(buf), "%.1fGB / %.1fGB", (double)info->disk_used_mb / 1024.0, (double)info->disk_total_mb / 1024.0);
-        else if (strcmp(unit, "%") == 0)
-            snprintf(buf, sizeof(buf), "%.1f%%", info->disk_total_mb ? (double)info->disk_used_mb / (double)info->disk_total_mb * 100.0 : 0);
+        if (strcmp(unit, "%") == 0)
+        {
+            double pct = info->disk_total_mb ? (double)info->disk_used_mb / (double)info->disk_total_mb * 100.0 : 0;
+            char col[32];
+            get_dynamic_color(pct, col, sizeof(col));
+            snprintf(buf, sizeof(buf), "%s%.1f%%\033[0m", col, pct);
+        }
         else
-            snprintf(buf, sizeof(buf), "%luMB / %luMB", info->disk_used_mb, info->disk_total_mb);
+        {
+            if (strcmp(unit, "gb") == 0)
+                snprintf(buf, sizeof(buf), "%.1fGB / %.1fGB", (double)info->disk_used_mb / 1024.0, (double)info->disk_total_mb / 1024.0);
+            else
+                snprintf(buf, sizeof(buf), "%luMB / %luMB", info->disk_used_mb, info->disk_total_mb);
+        }
     }
     else
     {
@@ -250,7 +288,7 @@ static void process_line(const char *line, SysInfo *info)
     int i = 0;
     current_col = 0;
     skip_output = 0;
-    in_ansi_escape = 0; // NOUVEAU : Réinitialiser l'état ANSI à chaque ligne
+    in_ansi_escape = 0;
 
     int has_logo = (strstr(line, "{logo}") != NULL || strstr(line, "{small_logo}") != NULL);
     if (has_logo && !prev_line_had_logo)

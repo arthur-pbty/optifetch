@@ -2,6 +2,10 @@
 
 Un outil d'information système rapide, léger, écrit en C et sans dépendances externes. Inspiré de Fastfetch, il se concentre sur la rapidité d'exécution et la personnalisation via un fichier de configuration simple.
 
+<p align="center">
+  <img src="assets/picture.png" alt="Picture" width="700"/>
+</p>
+
 ## Fonctionnalités
 
 - **Zéro dépendance** : Uniquement la bibliothèque C standard (glibc/musl).

@@ -29,7 +29,6 @@ void generate_default_config(const char *path)
     fprintf(f, "  {distro_color}{logo}    {align:L}{fg:157,211,154}Date{reset}: {align:V}{date} {time}\n");
     fprintf(f, "  {distro_color}{logo}    {align:L}{fg:157,211,154}Local IP{reset}: {align:V}{ip_local}\n");
     fprintf(f, "{if:wifi}  {distro_color}{logo}    {align:L}{fg:157,211,154}Wifi{reset}: {align:V}{wifi}\n{endif}");
-    fprintf(f, "  {distro_color}{logo}    {align:L}{fg:157,211,154}Public IP{reset}: {align:V}{ip_public}\n");
     fprintf(f, "  {distro_color}{logo}    {align:L}{fg:157,211,154}DNS{reset}: {align:V}{dns}\n");
     fprintf(f, "  {distro_color}{logo}\n");
     fprintf(f, "  {distro_color}{logo}    {align:L}{fg:157,211,154}███{fg:23,147,209}███{fg:255,200,87}███{fg:255,90,120}███{fg:180,120,255}███{fg:80,220,180}███{fg:240,240,240}███{fg:120,120,120}███{reset}\n");

@@ -38,6 +38,20 @@ static void clean_newline(char *str)
     str[strcspn(str, "\n")] = 0;
 }
 
+// NOUVEAU : Lecture précise de la mémoire depuis /proc/meminfo
+static long get_meminfo_kb(const char *buf, const char *key)
+{
+    const char *p = strstr(buf, key);
+    if (p)
+    {
+        p += strlen(key);
+        while (*p == ' ' || *p == '\t' || *p == ':')
+            p++;
+        return atol(p);
+    }
+    return 0;
+}
+
 void get_info(SysInfo *info)
 {
     struct passwd *pw = getpwuid(getuid());
@@ -49,7 +63,7 @@ void get_info(SysInfo *info)
     read_file("/etc/os-release", buf, sizeof(buf));
     extract_value(buf, "PRETTY_NAME", info->os, sizeof(info->os));
     extract_value(buf, "ID", info->os_id, sizeof(info->os_id));
-    extract_value(buf, "ANSI_COLOR", info->distro_color, sizeof(info->distro_color)); // NOUVEAU
+    extract_value(buf, "ANSI_COLOR", info->distro_color, sizeof(info->distro_color));
 
     struct utsname uts;
     uname(&uts);
@@ -81,10 +95,17 @@ void get_info(SysInfo *info)
     if (strlen(info->host_model) == 0)
         snprintf(info->host_model, sizeof(info->host_model), "Unknown");
 
-    info->ram_total_mb = s_info.totalram * s_info.mem_unit / (1024 * 1024);
-    info->ram_used_mb = (s_info.totalram - s_info.freeram) * s_info.mem_unit / (1024 * 1024);
-    info->swap_total_mb = s_info.totalswap * s_info.mem_unit / (1024 * 1024);
-    info->swap_used_mb = (s_info.totalswap - s_info.freeswap) * s_info.mem_unit / (1024 * 1024);
+    // NOUVEAU : Calcul de la RAM et Swap sans le cache
+    read_file("/proc/meminfo", buf, sizeof(buf));
+    long mem_total_kb = get_meminfo_kb(buf, "MemTotal");
+    long mem_avail_kb = get_meminfo_kb(buf, "MemAvailable");
+    long swap_total_kb = get_meminfo_kb(buf, "SwapTotal");
+    long swap_free_kb = get_meminfo_kb(buf, "SwapFree");
+
+    info->ram_total_mb = mem_total_kb / 1024;
+    info->ram_used_mb = (mem_total_kb - mem_avail_kb) / 1024; // Vraie RAM utilisée
+    info->swap_total_mb = swap_total_kb / 1024;
+    info->swap_used_mb = (swap_total_kb - swap_free_kb) / 1024;
 
     struct statvfs vfs;
     if (statvfs("/", &vfs) == 0)
