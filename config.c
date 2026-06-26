@@ -29,7 +29,7 @@ void generate_default_config(const char* path) {
     fprintf(f, "{fg:0,255,255}  {logo}      {align:L}{if:wifi}{fg:255,255,0}Wifi{reset}: {align:V}{wifi}{endif}\n");
     fprintf(f, "{fg:0,255,255}  {logo}      {align:L}{fg:255,255,0}Public IP{reset}: {align:V}{ip_public}\n");
     fprintf(f, "{fg:0,255,255}  {logo}      {align:L}{fg:255,255,0}DNS{reset}: {align:V}{dns}\n");
-    fprintf(f, "\n");
-    fprintf(f, "{align:L}{fg:0,255,0}███{fg:255,255,0}███{fg:255,0,255}███{fg:0,255,255}███{reset}\n");
+    fprintf(f, "{fg:0,255,255}  {logo}\n");
+    fprintf(f, "{fg:0,255,255}  {logo}{align:L}{fg:0,255,0}███{fg:255,255,0}███{fg:255,0,255}███{fg:0,255,255}███{reset}\n");
     fclose(f);
 }
