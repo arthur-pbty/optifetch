@@ -61,30 +61,13 @@ void get_logo_line(const char* os_id, int small, int idx, char* out, size_t size
         return;
     }
     
+    // CORRECTION : On affiche la ligne telle quelle, sans ajouter d'espaces à la fin.
+    // Le texte collera donc directement au logo et suivra sa pente.
     if(idx < c->count) {
         snprintf(out, size, "%s", c->lines[idx]);
-        // CORRECTION : On pad la ligne avec des espaces pour que toutes les lignes du logo
-        // fassent exactement la même largeur visuelle. C'est vital pour l'alignement.
-        int current_w = 0;
-        for(int j=0; j<strlen(out); j++) {
-            if((out[j] & 0xC0) != 0x80) current_w++;
-        }
-        int pad = c->width - current_w;
-        if(pad > 0) {
-            int len = strlen(out);
-            if (len + pad + 1 < (int)size) {
-                for(int i=0; i<pad; i++) out[len + i] = ' ';
-                out[len + pad] = '\0';
-            }
-        }
     } else {
-        // Lignes en dessous du logo : on remplit par des espaces
-        if (c->width > 0 && size > (size_t)c->width) {
-            for(int i=0; i<c->width; i++) out[i] = ' ';
-            out[c->width] = '\0';
-        } else {
-            out[0] = '\0';
-        }
+        // Si on dépasse la hauteur du logo, on ne renvoie rien (vide)
+        out[0] = '\0';
     }
 }
 
