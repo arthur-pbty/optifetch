@@ -17,7 +17,8 @@
 
 #define BUF_SIZE 4096
 
-typedef struct {
+typedef struct
+{
     char user[128];
     char hostname[256];
     char os[256];
@@ -60,10 +61,10 @@ typedef struct {
 } SysInfo;
 
 void get_info(SysInfo *info);
-void get_logo_line(const char* os_id, int small, int idx, char* out, size_t size);
-int get_logo_height(const char* os_id, int small);
-void generate_default_config(const char* path);
-void render_config(const char* path, SysInfo *info);
+void get_logo_line(const char *os_id, int small, int idx, char *out, size_t size);
+int get_logo_height(const char *os_id, int small);
+void generate_default_config(const char *path);
+void render_config(const char *path, SysInfo *info);
 void print_help();
 
 #endif

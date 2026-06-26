@@ -1,8 +1,9 @@
 #!/bin/bash
 echo "Compilation d'Optifetch..."
 
-# Compilation directe sans Makefile
-gcc -Wall -Wextra -O3 -s -o optifetch main.c sysinfo.c logos.c config.c renderer.c
+# On nettoie l'ancienne compilation puis on lance make
+make clean
+make
 
 if [ $? -eq 0 ]; then
     echo "Build réussi ! Exécutable créé : ./optifetch"

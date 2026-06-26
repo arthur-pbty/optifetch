@@ -3,7 +3,7 @@ Version:    1.0.0
 Release:    1%{?dist}
 Summary:    Lightweight system info tool written in C
 License:    MIT
-URL:        https://github.com/tonpseudo/optifetch
+URL:        https://github.com/arthur-pbty/optifetch
 Source0:    %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
 
 BuildRequires:  gcc

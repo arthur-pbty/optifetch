@@ -1,7 +1,8 @@
 #include "optifetch.h"
 #include <sys/stat.h> // Nécessaire pour mkdir()
 
-void print_help() {
+void print_help()
+{
     printf("Optifetch - Lightweight system info tool\n\n");
     printf("Usage: optifetch [options]\n\n");
     printf("Options:\n");
@@ -37,8 +38,10 @@ void print_help() {
     printf("  {if:wifi} ... {endif}     Show only if connected to wifi\n");
 }
 
-int main(int argc, char *argv[]) {
-    if (argc > 1 && (strcmp(argv[1], "help") == 0 || strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)) {
+int main(int argc, char *argv[])
+{
+    if (argc > 1 && (strcmp(argv[1], "help") == 0 || strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0))
+    {
         print_help();
         return 0;
     }
@@ -50,41 +53,51 @@ int main(int argc, char *argv[]) {
     int config_found = 0;
 
     // 1. Cherche dans le dossier local
-    if (access(config_path, F_OK) == 0) {
+    if (access(config_path, F_OK) == 0)
+    {
         config_found = 1;
     }
 
     // 2. Cherche dans ~/.config/optifetch.conf
-    if (!config_found) {
+    if (!config_found)
+    {
         const char *home = getenv("HOME");
-        if (home) {
+        if (home)
+        {
             snprintf(config_path, sizeof(config_path), "%s/.config/optifetch.conf", home);
-            if (access(config_path, F_OK) == 0) {
+            if (access(config_path, F_OK) == 0)
+            {
                 config_found = 1;
             }
         }
     }
 
     // 3. Cherche dans /etc/optifetch.conf
-    if (!config_found) {
+    if (!config_found)
+    {
         snprintf(config_path, sizeof(config_path), "/etc/optifetch.conf");
-        if (access(config_path, F_OK) == 0) {
+        if (access(config_path, F_OK) == 0)
+        {
             config_found = 1;
         }
     }
 
     // 4. Si toujours pas trouvé, on le génère
-    if (!config_found) {
+    if (!config_found)
+    {
         const char *home = getenv("HOME");
-        if (home) {
+        if (home)
+        {
             // S'assurer que le dossier ~/.config existe bien avant de créer le fichier
             char config_dir[512];
             snprintf(config_dir, sizeof(config_dir), "%s/.config", home);
             mkdir(config_dir, 0755); // Crée le dossier (s'il existe déjà, ne fait rien)
-            
+
             snprintf(config_path, sizeof(config_path), "%s/.config/optifetch.conf", home);
             generate_default_config(config_path);
-        } else {
+        }
+        else
+        {
             // Si pas de HOME (ex: environnement très restreint), on crée dans le dossier courant
             snprintf(config_path, sizeof(config_path), "optifetch.conf");
             generate_default_config(config_path);
@@ -93,7 +106,7 @@ int main(int argc, char *argv[]) {
     }
 
     render_config(config_path, &info);
-    
+
     printf("\033[0m");
     return 0;
 }

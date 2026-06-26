@@ -1,7 +1,7 @@
 Source: optifetch
 Section: utils
 Priority: optional
-Maintainer: Ton Nom <ton.email@example.com>
+Maintainer: Ton Nom <contact@arthurp.fr>
 Build-Depends: gcc, make
 Standards-Version: 4.5.0
 

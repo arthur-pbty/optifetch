@@ -19,7 +19,9 @@ Assure-toi d'avoir `gcc` et `make` d'installés, puis exécute :
 chmod +x build.sh
 ./build.sh
 ```
+
 Ou manuellement :
+
 ```bash
 make
 ```
@@ -35,9 +37,10 @@ sudo make install
 ## Configuration
 
 Au premier lancement, un fichier de configuration est généré dans `~/.config/optifetch.conf`.
-Tu peux l'éditer pour modifier l'affichage. 
+Tu peux l'éditer pour modifier l'affichage.
 
 Pour obtenir la liste de toutes les variables et balises disponibles :
+
 ```bash
 optifetch help
 ```
@@ -45,6 +48,7 @@ optifetch help
 ## Logos
 
 Les logos sont stockés dans des fichiers `.txt` situés dans :
+
 1. `./logos/` (dossier local)
 2. `/usr/share/optifetch/logos/` (dossier système)
 

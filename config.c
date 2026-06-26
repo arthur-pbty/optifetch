@@ -1,9 +1,11 @@
 #include "optifetch.h"
 
-void generate_default_config(const char* path) {
+void generate_default_config(const char *path)
+{
     FILE *f = fopen(path, "w");
-    if (!f) return;
-    
+    if (!f)
+        return;
+
     fprintf(f, "{reset}{align:L}{distro_color}{bold}{user}{reset}@{distro_color}{bold}{host}{reset}\n");
     fprintf(f, "{align:L}─────────────────────────────\n");
     fprintf(f, "  {distro_color}{logo}    {align:L}{fg:157,211,154}OS{reset}: {align:V}{os}\n");
