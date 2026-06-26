@@ -37,6 +37,7 @@ void get_info(SysInfo *info) {
     read_file("/etc/os-release", buf, sizeof(buf));
     extract_value(buf, "PRETTY_NAME", info->os, sizeof(info->os));
     extract_value(buf, "ID", info->os_id, sizeof(info->os_id));
+    extract_value(buf, "ANSI_COLOR", info->distro_color, sizeof(info->distro_color)); // NOUVEAU
 
     struct utsname uts;
     uname(&uts);

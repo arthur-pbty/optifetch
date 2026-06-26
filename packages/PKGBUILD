@@ -1,0 +1,22 @@
+# Maintainer: Ton Nom <ton.email@example.com>
+pkgname=optifetch
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Lightweight system info tool written in C"
+arch=('x86_64')
+url="https://github.com/tonpseudo/optifetch"
+license=('MIT')
+depends=('glibc')
+makedepends=('gcc' 'make')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+# md5sums=('SKIP') # À remplir si tu release une version fixe
+
+build() {
+    cd "$pkgname-$pkgver"
+    make
+}
+
+package() {
+    cd "$pkgname-$pkgver"
+    make DESTDIR="$pkgdir/" install
+}

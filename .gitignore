@@ -1,2 +1,20 @@
+# Exécutables et fichiers compilés
 optifetch
+*.o
+*.a
+*.so
+*.exe
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Fichiers de configuration générés localement
 optifetch.conf
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

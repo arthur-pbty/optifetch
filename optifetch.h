@@ -22,6 +22,7 @@ typedef struct {
     char hostname[256];
     char os[256];
     char os_id[64];
+    char distro_color[64]; // NOUVEAU
     char kernel[128];
     char uptime[128];
     char arch[128];
@@ -60,7 +61,7 @@ typedef struct {
 
 void get_info(SysInfo *info);
 void get_logo_line(const char* os_id, int small, int idx, char* out, size_t size);
-int get_logo_height(const char* os_id, int small); // NOUVEAU
+int get_logo_height(const char* os_id, int small);
 void generate_default_config(const char* path);
 void render_config(const char* path, SysInfo *info);
 void print_help();

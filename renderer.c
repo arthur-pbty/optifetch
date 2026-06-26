@@ -15,9 +15,11 @@ static int skip_output = 0;
 static int current_line_num = 0;
 static int current_pass = 1;
 
-// NOUVEAU : Variables pour gérer l'index du logo indépendamment des lignes du fichier
 static int logo_line_idx = 0;
 static int prev_line_had_logo = 0;
+
+// NOUVEAU : Variable pour ignorer les codes ANSI lors du calcul de la largeur
+static int in_ansi_escape = 0;
 
 static int get_align_width(const char* id) {
     for(int i=0; i<align_count; i++) {
@@ -45,6 +47,21 @@ static void my_putchar(char c) {
     if (current_pass == 2) {
         putchar(c);
     }
+    
+    // NOUVEAU : Logique pour ignorer les séquences d'échappement ANSI (\033[...m)
+    if (c == '\033') {
+        in_ansi_escape = 1;
+        return;
+    }
+    if (in_ansi_escape) {
+        // Les séquences ANSI se terminent par une lettre (souvent 'm')
+        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+            in_ansi_escape = 0;
+        }
+        return; // On ne compte pas ces caractères dans current_col
+    }
+    
+    // Compte les caractères UTF-8 visuels
     if ((c & 0xC0) != 0x80) {
         current_col++;
     }
@@ -80,8 +97,14 @@ static void print_variable(const char* name, SysInfo *info) {
     buf[0] = '\0';
     
     if (strcmp(name, "logo") == 0 || strcmp(name, "small_logo") == 0) {
-        // NOUVEAU : On utilise logo_line_idx au lieu de current_line_num
         get_logo_line(info->os_id, name[0] == 's', logo_line_idx, buf, sizeof(buf));
+    }
+    else if (strcmp(name, "distro_color") == 0) {
+        if (strlen(info->distro_color) > 0) {
+            snprintf(buf, sizeof(buf), "\033[%sm", info->distro_color);
+        } else {
+            snprintf(buf, sizeof(buf), "\033[0m");
+        }
     }
     else if (strcmp(name, "user") == 0) snprintf(buf, sizeof(buf), "%s", info->user);
     else if (strcmp(name, "host") == 0) snprintf(buf, sizeof(buf), "%s", info->hostname);
@@ -144,11 +167,11 @@ static void process_line(const char* line, SysInfo *info) {
     int i = 0;
     current_col = 0;
     skip_output = 0;
+    in_ansi_escape = 0; // NOUVEAU : Réinitialiser l'état ANSI à chaque ligne
 
-    // NOUVEAU : Détection de la présence du logo sur la ligne courante
     int has_logo = (strstr(line, "{logo}") != NULL || strstr(line, "{small_logo}") != NULL);
     if (has_logo && !prev_line_had_logo) {
-        logo_line_idx = 0; // On réinitialise l'index du logo à 0 si c'est le début du logo
+        logo_line_idx = 0;
     }
 
     while (line[i] != '\0' && line[i] != '\n') {
@@ -194,7 +217,6 @@ static void process_line(const char* line, SysInfo *info) {
     if (current_pass == 2 && !skip_output) putchar('\n');
     current_line_num++;
     
-    // NOUVEAU : Mise à jour des variables pour la gestion du logo
     prev_line_had_logo = has_logo;
     if (has_logo) logo_line_idx++;
 }
@@ -233,7 +255,6 @@ void render_config(const char* path, SysInfo *info) {
 
     align_count = 0;
 
-    // Pass 1
     current_pass = 1;
     current_line_num = 0;
     logo_line_idx = 0;
@@ -242,7 +263,6 @@ void render_config(const char* path, SysInfo *info) {
         process_line(lines[i], info);
     }
 
-    // Pass 2
     current_pass = 2;
     current_line_num = 0;
     logo_line_idx = 0;

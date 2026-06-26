@@ -1,0 +1,13 @@
+Source: optifetch
+Section: utils
+Priority: optional
+Maintainer: Ton Nom <ton.email@example.com>
+Build-Depends: gcc, make
+Standards-Version: 4.5.0
+
+Package: optifetch
+Architecture: amd64
+Depends: ${shlibs:Depends}
+Description: Lightweight system info tool
+ Optifetch is a fast, dependency-free system information tool
+ written in C, similar to Fastfetch and Neofetch.

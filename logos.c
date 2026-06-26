@@ -30,10 +30,21 @@ static LogoCache* load_logo(const char* os_id, int small) {
     new_cache->count = 0;
     new_cache->width = 0;
 
-    char path[256];
-    snprintf(path, sizeof(path), "logos/%s%s.txt", os_id, small ? "_small" : "");
+    char path[512];
+    const char* search_paths[] = {
+        "logos",
+        "/usr/share/optifetch/logos",
+        "/usr/local/share/optifetch/logos",
+        NULL
+    };
 
-    FILE *f = fopen(path, "r");
+    FILE *f = NULL;
+    for (int i = 0; search_paths[i] != NULL; i++) {
+        snprintf(path, sizeof(path), "%s/%s%s.txt", search_paths[i], os_id, small ? "_small" : "");
+        f = fopen(path, "r");
+        if (f) break;
+    }
+
     if (!f) return new_cache;
 
     char line[MAX_LOGO_WIDTH];
@@ -42,7 +53,8 @@ static LogoCache* load_logo(const char* os_id, int small) {
         snprintf(new_cache->lines[new_cache->count], MAX_LOGO_WIDTH, "%s", line);
         
         int w = 0;
-        for(int j=0; j<strlen(line); j++) {
+        // CORRECTION : Utilisation de size_t au lieu de int pour éviter le warning
+        for(size_t j=0; j<strlen(line); j++) {
             if((line[j] & 0xC0) != 0x80) w++;
         }
         if(w > new_cache->width) new_cache->width = w;
@@ -61,12 +73,9 @@ void get_logo_line(const char* os_id, int small, int idx, char* out, size_t size
         return;
     }
     
-    // CORRECTION : On affiche la ligne telle quelle, sans ajouter d'espaces à la fin.
-    // Le texte collera donc directement au logo et suivra sa pente.
     if(idx < c->count) {
         snprintf(out, size, "%s", c->lines[idx]);
     } else {
-        // Si on dépasse la hauteur du logo, on ne renvoie rien (vide)
         out[0] = '\0';
     }
 }
